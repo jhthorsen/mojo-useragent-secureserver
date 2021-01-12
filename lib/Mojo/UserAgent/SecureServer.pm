@@ -4,6 +4,8 @@ use Mojo::Base 'Mojo::UserAgent::Server';
 use Net::SSLeay ();
 use Scalar::Util qw(weaken);
 
+our $VERSION = '0.01';
+
 has listen => sub { Mojo::URL->new('https://127.0.0.1') };
 
 sub from_ua {
