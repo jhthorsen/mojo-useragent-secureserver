@@ -1,4 +1,4 @@
-use Mojo::Base;
+use Mojo::Base -strict;
 use Test::More;
 use Mojo::UserAgent;
 use Mojo::UserAgent::SecureServer;
