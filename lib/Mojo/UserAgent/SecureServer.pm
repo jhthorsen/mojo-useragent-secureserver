@@ -45,3 +45,95 @@ sub _url {
 }
 
 1;
+
+=encoding utf8
+
+=head1 NAME
+
+Mojo::UserAgent::SecureServer - Secure application server for Mojo::UserAgent
+
+=head1 SYNOPSIS
+
+  # Construct from Mojo::UserAgent
+  my $ua = Mojo::UserAgent->new;
+  $ua->ca('ca.pem')->cert('cert.pem')->key('key.pem');
+  $ua->server(Mojo::UserAgent::SecureServer->from_ua($ua));
+
+  # Construct manually
+  my $ua     = Mojo::UserAgent->new;
+  my $server = Mojo::UserAgent::SecureServer->new;
+  $server->listen(Mojo::URL->new('https://127.0.0.1?cert=/x/server.crt&key=/y/server.key&ca=/z/ca.crt'));
+  $ua->server($server);
+
+  # Test::Mojo
+  my $app = Mojolicious->new;
+  $app->routes->get('/' => sub {
+    my $c      = shift;
+    my $handle = Mojo::IOLoop->stream($c->tx->connection)->handle;
+    $c->render(json => {cn => $handle->peer_certificate('cn')});
+  });
+
+  my $t = Test::Mojo->new($app);
+  $t->ua->insecure(0);
+  $t->ua->ca('t/pki/certs/ca-chain.cert.pem')
+    ->cert('t/pki/mojo.example.com.cert.pem')
+    ->key('t/pki/mojo.example.com.key.pem');
+  $t->ua->server(Mojo::UserAgent::SecureServer->from_ua($t->ua));
+
+  $t->get_ok('/')->status_is(200)->json_is('/cn', 'mojo.example.com');
+
+=head1 DESCRIPTION
+
+L<Mojo::UserAgent::SecureServer> allows you to test your L<Mojolicious> web
+application with custom SSL/TLS key/cert/ca.
+
+=head1 ATTRIBUTES
+
+L<Mojo::UserAgent::SecureServer> inherits all attributes from
+L<Mojo::UserAgent::Server> and implements the following new ones.
+
+=head2 listen
+
+  $url = $server->listen;
+  $server = $server->listen(Mojo::URL->new('https://127.0.0.1'));
+
+=head1 METHODS
+
+L<Mojo::UserAgent::SecureServer> inherits all methods from
+L<Mojo::UserAgent::Server> and implements the following new ones.
+
+=head2 from_ua
+
+  $server = Mojo::UserAgent::SecureServer->from_ua($ua);
+  $server = $server->from_ua($ua);
+
+=head2 nb_url
+
+  $url = $server->nb_url;
+
+Get absolute L<Mojo::URL> object for server processing non-blocking requests
+with L<Mojo::UserAgent::Server/app>.
+
+=head2 url
+
+  $url = $server->url;
+
+Get absolute L<Mojo::URL> object for server processing non-blocking requests
+with L<Mojo::UserAgent::Server/app>.
+
+=head1 AUTHOR
+
+Jan Henning Thorsen
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) Jan Henning Thorsen.
+
+This program is free software, you can redistribute it and/or modify it under
+the terms of the Artistic License version 2.0.
+
+=head1 SEE ALSO
+
+L<Mojo::UserAgent>, L<Mojo::UserAgent::Server> and L<Test::Mojo>.
+
+=cut
