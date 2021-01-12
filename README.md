@@ -47,6 +47,10 @@ application with custom SSL/TLS key/cert/ca.
     $url = $server->listen;
     $server = $server->listen(Mojo::URL->new('https://127.0.0.1'));
 
+The base listen URL for [Mojo::Server::Daemon](https://metacpan.org/pod/Mojo%3A%3AServer%3A%3ADaemon) created by ["nb\_url"](#nb_url) and
+["url"](#url). The "port" will be discarded, while other
+["listen" in Mojo::Server::Daemon](https://metacpan.org/pod/Mojo%3A%3AServer%3A%3ADaemon#listen) parameters are kept.
+
 # METHODS
 
 [Mojo::UserAgent::SecureServer](https://metacpan.org/pod/Mojo%3A%3AUserAgent%3A%3ASecureServer) inherits all methods from
@@ -56,6 +60,16 @@ application with custom SSL/TLS key/cert/ca.
 
     $server = Mojo::UserAgent::SecureServer->from_ua($ua);
     $server = $server->from_ua($ua);
+
+Used to construct a new object and/or copy attributes from a [Mojo::UserAgent](https://metacpan.org/pod/Mojo%3A%3AUserAgent)
+object. Here is the long version:
+
+    $server->app($ua->server->app);
+    $server->ioloop($ua->server->ioloop);
+    $server->listen->query->param(ca     => $ua->ca);
+    $server->listen->query->param(cert   => $ua->cert);
+    $server->listen->query->param(key    => $ua->key);
+    $server->listen->query->param(verify => Net::SSLeay::VERIFY_PEER()) unless $ua->insecure
 
 ## nb\_url
 
