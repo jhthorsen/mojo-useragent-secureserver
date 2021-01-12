@@ -99,6 +99,10 @@ L<Mojo::UserAgent::Server> and implements the following new ones.
   $url = $server->listen;
   $server = $server->listen(Mojo::URL->new('https://127.0.0.1'));
 
+The base listen URL for L<Mojo::Server::Daemon> created by L</nb_url> and
+L</url>. The "port" will be discarded, while other
+L<Mojo::Server::Daemon/listen> parameters are kept.
+
 =head1 METHODS
 
 L<Mojo::UserAgent::SecureServer> inherits all methods from
@@ -108,6 +112,16 @@ L<Mojo::UserAgent::Server> and implements the following new ones.
 
   $server = Mojo::UserAgent::SecureServer->from_ua($ua);
   $server = $server->from_ua($ua);
+
+Used to construct a new object and/or copy attributes from a L<Mojo::UserAgent>
+object. Here is the long version:
+
+  $server->app($ua->server->app);
+  $server->ioloop($ua->server->ioloop);
+  $server->listen->query->param(ca     => $ua->ca);
+  $server->listen->query->param(cert   => $ua->cert);
+  $server->listen->query->param(key    => $ua->key);
+  $server->listen->query->param(verify => Net::SSLeay::VERIFY_PEER()) unless $ua->insecure
 
 =head2 nb_url
 
