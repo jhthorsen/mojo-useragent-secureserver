@@ -26,24 +26,20 @@ sub url    { shift->_url(0, @_) }
 sub _url {
   my ($self, $nb) = @_;
 
-  unless ($self->{server}) {
-    my $url = $self->listen->clone;
+  my $port_key = $nb ? 'nb_port' : 'port';
+  unless ($self->{$port_key}) {
+    my $server_key   = $nb ? 'nb_server' : 'server';
+    my $url          = $self->listen->clone;
+    my @daemon_attrs = (silent => 1);
+    push @daemon_attrs, ioloop => $self->ioloop unless $nb;
 
-    # Blocking
-    my $server = $self->{server} = Mojo::Server::Daemon->new(ioloop => $self->ioloop, silent => 1);
+    my $server = $self->{$server_key} = Mojo::Server::Daemon->new(@daemon_attrs);
     weaken $server->app($self->app)->{app};
     $url->port($self->{port} || undef);
-    $self->{port} = $server->listen([$url->to_string])->start->ports->[0];
-
-    # Non-blocking
-    $server = $self->{nb_server} = Mojo::Server::Daemon->new(silent => 1);
-    weaken $server->app($self->app)->{app};
-    $url->port($self->{nb_port} || undef);
-    $self->{nb_port} = $server->listen([$url->to_string])->start->ports->[0];
+    $self->{$port_key} = $server->listen([$url->to_string])->start->ports->[0];
   }
 
-  my $port = $nb ? $self->{nb_port} : $self->{port};
-  return Mojo::URL->new("https://127.0.0.1:$port/");
+  return Mojo::URL->new("https://127.0.0.1:$self->{$port_key}/");
 }
 
 1;
